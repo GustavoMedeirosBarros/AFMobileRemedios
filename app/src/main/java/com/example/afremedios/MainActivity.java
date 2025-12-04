@@ -145,9 +145,14 @@ public class MainActivity extends AppCompatActivity {
         c.set(Calendar.MINUTE, minuto);
         c.set(Calendar.SECOND, 0);
 
+        if (c.getTimeInMillis() <= System.currentTimeMillis()) {
+            c.add(Calendar.DAY_OF_MONTH, 1);
+        }
+
         Intent intent = new Intent(this, AlarmReceiver.class);
         intent.putExtra("nome", r.getNome());
         intent.putExtra("descricao", r.getDescricao());
+        intent.putExtra("id", r.getId());
 
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 this,
@@ -168,7 +173,4 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Não é possível agendar alarmes exatos no dispositivo.", Toast.LENGTH_SHORT).show();
         }
     }
-
-
-
 }

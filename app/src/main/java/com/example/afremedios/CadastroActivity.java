@@ -1,7 +1,9 @@
 package com.example.afremedios;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -10,6 +12,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.afremedios.model.Remedio;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.Calendar;
 
 public class CadastroActivity extends AppCompatActivity {
 
@@ -96,27 +100,33 @@ public class CadastroActivity extends AppCompatActivity {
             int hora = Integer.parseInt(partes[0]);
             int minuto = Integer.parseInt(partes[1]);
 
-            java.util.Calendar c = java.util.Calendar.getInstance();
+            Calendar c = Calendar.getInstance();
             c.set(java.util.Calendar.HOUR_OF_DAY, hora);
             c.set(java.util.Calendar.MINUTE, minuto);
             c.set(java.util.Calendar.SECOND, 0);
 
-            android.content.Intent intent = new android.content.Intent(this, AlarmReceiver.class);
+            if (c.getTimeInMillis() <= System.currentTimeMillis()) {
+                c.add(Calendar.DAY_OF_MONTH, 1);
+            }
+
+            Intent intent = new Intent(this, AlarmReceiver.class);
             intent.putExtra("nome", r.getNome());
             intent.putExtra("descricao", r.getDescricao());
+            intent.putExtra("id", r.getId());
 
             int pendingIntentId = r.getId() != null ? r.getId().hashCode() : (int) System.currentTimeMillis();
-            android.app.PendingIntent pendingIntent = android.app.PendingIntent.getBroadcast(
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(
                     this,
                     pendingIntentId,
                     intent,
-                    android.app.PendingIntent.FLAG_UPDATE_CURRENT | android.app.PendingIntent.FLAG_IMMUTABLE
+                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
             );
 
+            AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
             try {
-                android.app.AlarmManager alarmManager = (android.app.AlarmManager) getSystemService(ALARM_SERVICE);
+
                 alarmManager.setExactAndAllowWhileIdle(
-                        android.app.AlarmManager.RTC_WAKEUP,
+                        AlarmManager.RTC_WAKEUP,
                         c.getTimeInMillis(),
                         pendingIntent
                 );
