@@ -1,23 +1,29 @@
 package com.example.afremedios;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.view.View;
+import android.util.Log;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import com.bumptech.glide.Glide;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.gson.annotations.SerializedName;
+
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Random;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.http.GET;
-import retrofit2.http.Path;
 
 public class RickMortyActivity extends AppCompatActivity {
 
@@ -27,7 +33,14 @@ public class RickMortyActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_rick_morty);
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
 
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setNavigationOnClickListener(v -> finish());
@@ -40,45 +53,56 @@ public class RickMortyActivity extends AppCompatActivity {
     }
 
     private void carregarPersonagemAleatorio() {
-        int idAleatorio = new Random().nextInt(826) + 1;
+        new Thread(() -> {
+            try {
+                int idAleatorio = new Random().nextInt(826) + 1;
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://rickandmortyapi.com/api/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
+                URL url = new URL("https://rickandmortyapi.com/api/character/" + idAleatorio);
+                HttpURLConnection conexao = (HttpURLConnection) url.openConnection();
+                conexao.setRequestMethod("GET");
 
-        RickMortyService service = retrofit.create(RickMortyService.class);
+                int responseCode = conexao.getResponseCode();
 
-        service.getCharacter(idAleatorio).enqueue(new Callback<Character>() {
-            @Override
-            public void onResponse(Call<Character> call, Response<Character> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    Character character = response.body();
+                if (responseCode == 200) {
+                    BufferedReader in = new BufferedReader(new InputStreamReader(conexao.getInputStream()));
+                    StringBuilder response = new StringBuilder();
+                    String inputLine;
+                    while ((inputLine = in.readLine()) != null) {
+                        response.append(inputLine);
+                    }
+                    in.close();
 
-                    txtNome.setText(character.name);
-                    txtStatus.setText(character.status + " - " + character.species);
+                    String jsonString = response.toString();
+                    JSONObject jsonObject = new JSONObject(jsonString);
 
-                    Glide.with(RickMortyActivity.this)
-                            .load(character.image)
-                            .circleCrop()
-                            .into(imgPersonagem);
+                    String nome = jsonObject.getString("name");
+                    String status = jsonObject.getString("status");
+                    String species = jsonObject.getString("species");
+                    String imagemUrl = jsonObject.getString("image");
+
+                    URL urlImagem = new URL(imagemUrl);
+                    InputStream inputStream = urlImagem.openStream();
+                    Bitmap imagemBitmap = BitmapFactory.decodeStream(inputStream);
+
+                    runOnUiThread(() -> {
+                        txtNome.setText(nome);
+                        txtStatus.setText(status + " - " + species);
+                        imgPersonagem.setImageBitmap(imagemBitmap);
+                    });
+
+                } else {
+                    Log.e("API", "Erro de conexão: " + responseCode);
+                    runOnUiThread(() ->
+                            Toast.makeText(RickMortyActivity.this, "Erro ao buscar dados", Toast.LENGTH_SHORT).show()
+                    );
                 }
-            }
 
-            @Override
-            public void onFailure(Call<Character> call, Throwable t) {
-                Toast.makeText(RickMortyActivity.this, "Erro: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                e.printStackTrace();
+                runOnUiThread(() ->
+                        Toast.makeText(RickMortyActivity.this, "Erro: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                );
             }
-        });
-    }
-    interface RickMortyService {
-        @GET("character/{id}")
-        Call<Character> getCharacter(@Path("id") int id);
-    }
-    static class Character {
-        @SerializedName("name") String name;
-        @SerializedName("status") String status;
-        @SerializedName("species") String species;
-        @SerializedName("image") String image;
+        }).start();
     }
 }

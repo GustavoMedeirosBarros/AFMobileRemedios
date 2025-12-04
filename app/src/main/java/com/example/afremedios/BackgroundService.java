@@ -19,19 +19,6 @@ public class BackgroundService extends Service {
     {
         return null;
     }
-    private void showNotification() {
-        Intent intent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, FLAG_IMMUTABLE);
-        Notification notification = new NotificationCompat.Builder(this, "default")
-                .setContentTitle("Notificação de Evento")
-                .setContentText("Algo aconteceu!")
-                .setSmallIcon(R.drawable.person_pin_circle_24px)
-                .setContentIntent(pendingIntent)
-                .build();
-        NotificationManager notificationManager = (NotificationManager)
-                getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(1, notification);
-    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
