@@ -42,8 +42,6 @@ public class MainActivity extends AppCompatActivity {
     private List<Remedio> listaRemedios;
     private FirebaseFirestore db;
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,6 +71,11 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        btnAdicionar.setOnLongClickListener(v -> {
+            startActivity(new Intent(this, RickMortyActivity.class));
+            return true;
+        });
+
         adapter.setOnItemClickListener(remedio -> {
             Intent intent = new Intent(this, CadastroActivity.class);
             intent.putExtra("id", remedio.getId());
@@ -91,8 +94,6 @@ public class MainActivity extends AppCompatActivity {
                         new String[]{Manifest.permission.POST_NOTIFICATIONS}, 200);
             }
         }
-
-
     }
 
     private void carregarRemedios() {
@@ -113,14 +114,14 @@ public class MainActivity extends AppCompatActivity {
             if (r.getId() == null || r.getId().isEmpty()) {
                 db.collection("remedios").add(r).addOnSuccessListener(doc -> {
                     r.setId(doc.getId());
-                    agendarNotificacaoDireta(r);
+                    agendarNotificacao(r);
                     Toast.makeText(this, "Remédio salvo!", Toast.LENGTH_SHORT).show();
                 });
 
             } else {
                 db.collection("remedios").document(r.getId()).set(r)
                         .addOnSuccessListener(aVoid -> {
-                            agendarNotificacaoDireta(r);
+                            agendarNotificacao(r);
                             Toast.makeText(this, "Remédio atualizado!", Toast.LENGTH_SHORT).show();
                         });
             }
@@ -134,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
         carregarRemedios();
     }
 
-    private void agendarNotificacaoDireta(Remedio r) {
+    private void agendarNotificacao(Remedio r) {
         String[] partes = r.getHorario().split(":");
         int hora = Integer.parseInt(partes[0]);
         int minuto = Integer.parseInt(partes[1]);
@@ -143,7 +144,6 @@ public class MainActivity extends AppCompatActivity {
         c.set(Calendar.HOUR_OF_DAY, hora);
         c.set(Calendar.MINUTE, minuto);
         c.set(Calendar.SECOND, 0);
-
 
         Intent intent = new Intent(this, AlarmReceiver.class);
         intent.putExtra("nome", r.getNome());
@@ -157,16 +157,6 @@ public class MainActivity extends AppCompatActivity {
         );
 
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (!alarmManager.canScheduleExactAlarms()) {
-                Intent settingsIntent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
-                startActivity(settingsIntent);
-                Toast.makeText(this, "Por favor, permita alarmes exatos para receber notificações.", Toast.LENGTH_LONG).show();
-                return;
-            }
-        }
-
         try {
             alarmManager.setExactAndAllowWhileIdle(
                     AlarmManager.RTC_WAKEUP,
@@ -174,12 +164,11 @@ public class MainActivity extends AppCompatActivity {
                     pendingIntent
             );
         } catch (SecurityException e) {
-            Toast.makeText(this, "Erro: Permissão de alarme exato necessária.", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
+            Toast.makeText(this, "Não é possível agendar alarmes exatos no dispositivo.", Toast.LENGTH_SHORT).show();
         }
-
-
     }
+
 
 
 }

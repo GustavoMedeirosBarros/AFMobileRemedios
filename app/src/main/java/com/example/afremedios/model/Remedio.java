@@ -1,9 +1,5 @@
 package com.example.afremedios.model;
 
-import java.io.Serializable;
-import java.text.DateFormat;
-import java.util.Date;
-
 public class Remedio {
 
     private String id;

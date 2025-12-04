@@ -48,11 +48,11 @@ public class RemedioAdapter extends RecyclerView.Adapter<RemedioAdapter.ViewHold
         holder.txtNome.setText(r.getNome());
         holder.txtDetalhes.setText(String.format("%s | Horário: %s", r.getDescricao(), r.getHorario()));
 
-        atualizarStatusVisual(holder, r.isTomado());
+        corCheckBox(holder, r.isTomado());
 
-        holder.cbTomado.setChecked(r.isTomado());
+        holder.checkBoxTomado.setChecked(r.isTomado());
 
-        holder.cbTomado.setOnCheckedChangeListener((buttonView, isChecked) -> {
+        holder.checkBoxTomado.setOnCheckedChangeListener((buttonView, isChecked) -> {
             r.setTomado(isChecked);
         });
 
@@ -68,19 +68,17 @@ public class RemedioAdapter extends RecyclerView.Adapter<RemedioAdapter.ViewHold
         });
     }
 
-    private void atualizarStatusVisual(ViewHolder holder, boolean tomado) {
+    private void corCheckBox(ViewHolder holder, boolean tomado) {
         if (tomado) {
-            holder.tvStatus.setText("Tomado");
-            holder.tvStatus.setTextColor(0xFF4CAF50); // verde
-            holder.cbTomado.setButtonTintList(android.content.res.ColorStateList.valueOf(0xFF4CAF50));
+            holder.txtStatus.setText("Tomado");
+            holder.txtStatus.setTextColor(0xFF4CAF50);
+            holder.checkBoxTomado.setButtonTintList(android.content.res.ColorStateList.valueOf(0xFF4CAF50));
         } else {
-            holder.tvStatus.setText("Não tomado");
-            holder.tvStatus.setTextColor(0xFFF44336); // vermelho
-            holder.cbTomado.setButtonTintList(android.content.res.ColorStateList.valueOf(0xFFF44336));
+            holder.txtStatus.setText("Não tomado");
+            holder.txtStatus.setTextColor(0xFFF44336);
+            holder.checkBoxTomado.setButtonTintList(android.content.res.ColorStateList.valueOf(0xFFF44336));
         }
     }
-
-
     private void deletarRemedio(String idDocumento, int position, View view) {
         FirebaseFirestore.getInstance().collection("remedios")
                 .document(idDocumento)
@@ -91,22 +89,19 @@ public class RemedioAdapter extends RecyclerView.Adapter<RemedioAdapter.ViewHold
                     Toast.makeText(view.getContext(), "Remedio deletado!", Toast.LENGTH_SHORT).show();
                 });
     }
-
     @Override
     public int getItemCount() {
         return remedios.size();
     }
-
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView txtNome, txtDetalhes, tvStatus;
-        CheckBox cbTomado;
-
+        TextView txtNome, txtDetalhes, txtStatus;
+        CheckBox checkBoxTomado;
         public ViewHolder(View itemView) {
             super(itemView);
             txtNome = itemView.findViewById(R.id.tvNome);
             txtDetalhes = itemView.findViewById(R.id.tvDetalhes);
-            cbTomado = itemView.findViewById(R.id.cbTomado);
-            tvStatus = itemView.findViewById(R.id.tvStatus);
+            checkBoxTomado = itemView.findViewById(R.id.cbTomado);
+            txtStatus = itemView.findViewById(R.id.tvStatus);
         }
     }
 }

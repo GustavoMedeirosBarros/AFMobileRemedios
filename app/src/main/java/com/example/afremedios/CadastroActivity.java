@@ -15,7 +15,6 @@ public class CadastroActivity extends AppCompatActivity {
 
     private EditText edtNome, edtDescricao, edtHorario;
     private FirebaseFirestore db;
-    private Button btnSalvar;
     private String idEditando = null;
 
     @Override
@@ -41,7 +40,6 @@ public class CadastroActivity extends AppCompatActivity {
         } else {
             toolbar.setTitle(getString(R.string.titulo_adicionar));
         }
-
     }
 
     private void preencherCampos() {
@@ -103,15 +101,11 @@ public class CadastroActivity extends AppCompatActivity {
             c.set(java.util.Calendar.MINUTE, minuto);
             c.set(java.util.Calendar.SECOND, 0);
 
-            if (c.getTimeInMillis() < System.currentTimeMillis()) {
-                c.add(java.util.Calendar.DAY_OF_YEAR, 1);
-            }
-
             android.content.Intent intent = new android.content.Intent(this, AlarmReceiver.class);
             intent.putExtra("nome", r.getNome());
             intent.putExtra("descricao", r.getDescricao());
-            int pendingIntentId = r.getId() != null ? r.getId().hashCode() : (int) System.currentTimeMillis();
 
+            int pendingIntentId = r.getId() != null ? r.getId().hashCode() : (int) System.currentTimeMillis();
             android.app.PendingIntent pendingIntent = android.app.PendingIntent.getBroadcast(
                     this,
                     pendingIntentId,
@@ -119,22 +113,22 @@ public class CadastroActivity extends AppCompatActivity {
                     android.app.PendingIntent.FLAG_UPDATE_CURRENT | android.app.PendingIntent.FLAG_IMMUTABLE
             );
 
-            android.app.AlarmManager alarmManager = (android.app.AlarmManager) getSystemService(ALARM_SERVICE);
-
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-                if (alarmManager.canScheduleExactAlarms()) {
-                    alarmManager.setExactAndAllowWhileIdle(android.app.AlarmManager.RTC_WAKEUP, c.getTimeInMillis(), pendingIntent);
-                } else {
-                    android.util.Log.e("ALARM", "Permissão de alarme exato não concedida");
-                }
-            } else {
-                alarmManager.setExactAndAllowWhileIdle(android.app.AlarmManager.RTC_WAKEUP, c.getTimeInMillis(), pendingIntent);
+            try {
+                android.app.AlarmManager alarmManager = (android.app.AlarmManager) getSystemService(ALARM_SERVICE);
+                alarmManager.setExactAndAllowWhileIdle(
+                        android.app.AlarmManager.RTC_WAKEUP,
+                        c.getTimeInMillis(),
+                        pendingIntent
+                );
+            } catch (SecurityException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Não é possível agendar alarmes exatos neste dispositivo.", Toast.LENGTH_SHORT).show();
             }
-
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(this, "Erro ao agendar: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
+
 
 }
