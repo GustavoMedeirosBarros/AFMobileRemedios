@@ -147,10 +147,14 @@ public class MainActivity extends AppCompatActivity {
             c.add(Calendar.DAY_OF_MONTH, 1);
         }
 
+        long tempoDeEspera = c.getTimeInMillis() - System.currentTimeMillis();
+
         Intent intent = new Intent(this, BackgroundService.class);
         intent.putExtra("nome", r.getNome());
         intent.putExtra("descricao", r.getDescricao());
         intent.putExtra("id", r.getId());
+        intent.putExtra("tempo_espera", tempoDeEspera);
+
 
         startService(intent);
     }

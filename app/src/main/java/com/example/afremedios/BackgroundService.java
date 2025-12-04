@@ -8,7 +8,9 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 
 import androidx.core.app.NotificationCompat;
 
@@ -21,12 +23,23 @@ public class BackgroundService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        String nome = intent.getStringExtra("nome");
-        String descricao = intent.getStringExtra("descricao");
+        if (intent != null) {
+            String nome = intent.getStringExtra("nome");
+            String descricao = intent.getStringExtra("descricao");
+            long tempoEspera = intent.getLongExtra("tempo_espera", 0);
 
-        showNotification(nome, descricao);
-        return START_NOT_STICKY;
+            if (tempoEspera <= 0) {
+                showNotification(nome, descricao);
+            } else {
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    showNotification(nome, descricao);
+                    stopSelf();
+                }, tempoEspera);
+            }
+        }
+        return START_STICKY;
     }
+
 
     private void showNotification(String nome, String descricao) {
         Intent intent = new Intent(this, MainActivity.class);
