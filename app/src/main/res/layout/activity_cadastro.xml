@@ -93,7 +93,7 @@
             android:layout_marginTop="8dp"
             android:background="@drawable/rounded_edittext_background"
             android:hint="@string/hint_horario"
-            android:inputType="datetime"
+            android:inputType="text"
             android:padding="12dp" />
 
         <Button

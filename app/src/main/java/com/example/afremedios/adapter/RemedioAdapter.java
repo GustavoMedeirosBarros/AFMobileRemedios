@@ -71,11 +71,9 @@ public class RemedioAdapter extends RecyclerView.Adapter<RemedioAdapter.ViewHold
     private void corCheckBox(ViewHolder holder, boolean tomado) {
         if (tomado) {
             holder.txtStatus.setText("Tomado");
-            holder.txtStatus.setTextColor(0xFF4CAF50);
             holder.checkBoxTomado.setButtonTintList(android.content.res.ColorStateList.valueOf(0xFF4CAF50));
         } else {
             holder.txtStatus.setText("Não tomado");
-            holder.txtStatus.setTextColor(0xFFF44336);
             holder.checkBoxTomado.setButtonTintList(android.content.res.ColorStateList.valueOf(0xFFF44336));
         }
     }

@@ -84,24 +84,20 @@ public class RickMortyActivity extends AppCompatActivity {
                     InputStream inputStream = urlImagem.openStream();
                     Bitmap imagemBitmap = BitmapFactory.decodeStream(inputStream);
 
-                    runOnUiThread(() -> {
-                        txtNome.setText(nome);
-                        txtStatus.setText(status + " - " + species);
-                        imgPersonagem.setImageBitmap(imagemBitmap);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            txtNome.setText(nome);
+                            txtStatus.setText(status + " - " + species);
+                            imgPersonagem.setImageBitmap(imagemBitmap);
+                        }
                     });
-
                 } else {
                     Log.e("API", "Erro de conexão: " + responseCode);
-                    runOnUiThread(() ->
-                            Toast.makeText(RickMortyActivity.this, "Erro ao buscar dados", Toast.LENGTH_SHORT).show()
-                    );
                 }
 
             } catch (Exception e) {
                 e.printStackTrace();
-                runOnUiThread(() ->
-                        Toast.makeText(RickMortyActivity.this, "Erro: " + e.getMessage(), Toast.LENGTH_SHORT).show()
-                );
             }
         }).start();
     }
