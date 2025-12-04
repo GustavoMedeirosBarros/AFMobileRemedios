@@ -1,7 +1,6 @@
 package com.example.afremedios.model;
 
 public class Remedio {
-
     private String id;
     private String nome;
     private String descricao;

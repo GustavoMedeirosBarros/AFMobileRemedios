@@ -1,7 +1,5 @@
 package com.example.afremedios;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.EditText;
@@ -16,7 +14,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.Calendar;
 
 public class CadastroActivity extends AppCompatActivity {
-
     private EditText edtNome, edtDescricao, edtHorario;
     private FirebaseFirestore db;
     private String idEditando = null;
