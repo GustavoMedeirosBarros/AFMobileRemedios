@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -138,13 +139,10 @@ public class MainActivity extends AppCompatActivity {
         int hora = Integer.parseInt(partes[0]);
         int minuto = Integer.parseInt(partes[1]);
 
-        //Calendar c = Calendar.getInstance();
-        //c.set(Calendar.HOUR_OF_DAY, hora);
-        //c.set(Calendar.MINUTE, minuto);
-        //c.set(Calendar.SECOND, 0);
-
         Calendar c = Calendar.getInstance();
-        c.add(Calendar.SECOND, 10);
+        c.set(Calendar.HOUR_OF_DAY, hora);
+        c.set(Calendar.MINUTE, minuto);
+        c.set(Calendar.SECOND, 0);
 
 
         Intent intent = new Intent(this, AlarmReceiver.class);
@@ -153,17 +151,32 @@ public class MainActivity extends AppCompatActivity {
 
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 this,
-                0,
+                r.getId().hashCode(),
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
 
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        alarmManager.setExactAndAllowWhileIdle(
-                AlarmManager.RTC_WAKEUP,
-                c.getTimeInMillis(),
-                pendingIntent
-        );
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (!alarmManager.canScheduleExactAlarms()) {
+                Intent settingsIntent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
+                startActivity(settingsIntent);
+                Toast.makeText(this, "Por favor, permita alarmes exatos para receber notificações.", Toast.LENGTH_LONG).show();
+                return;
+            }
+        }
+
+        try {
+            alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    c.getTimeInMillis(),
+                    pendingIntent
+            );
+        } catch (SecurityException e) {
+            Toast.makeText(this, "Erro: Permissão de alarme exato necessária.", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
 
 
     }

@@ -6,7 +6,6 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.widget.Toast;
 
 import androidx.core.app.NotificationCompat;
 
@@ -15,10 +14,6 @@ public class AlarmReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         String nome = intent.getStringExtra("nome");
         String descricao = intent.getStringExtra("descricao");
-        int notificationId = intent.getIntExtra("notificationId", (int) System.currentTimeMillis());
-
-        // Toast para debug - vai aparecer na tela quando o alarme disparar
-        Toast.makeText(context, "ALARME DISPARADO: " + nome, Toast.LENGTH_LONG).show();
 
         Intent notificationIntent = new Intent(context, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(
@@ -28,7 +23,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         Notification notification = new NotificationCompat.Builder(context, "default")
                 .setContentTitle("Hora do remédio: " + nome)
                 .setContentText(descricao)
-                .setSmallIcon(R.drawable.person_pin_circle_24px)
+                .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
                 .build();

@@ -66,6 +66,7 @@ public class CadastroActivity extends AppCompatActivity {
             db.collection("remedios").add(novo)
                     .addOnSuccessListener(doc -> {
                         novo.setId(doc.getId());
+                        agendarNotificacao(novo);
                         Toast.makeText(this, "Remédio adicionado!", Toast.LENGTH_SHORT).show();
                         finish();
                     });
@@ -83,9 +84,57 @@ public class CadastroActivity extends AppCompatActivity {
                     .document(idEditando)
                     .set(editado)
                     .addOnSuccessListener(aVoid -> {
+                        agendarNotificacao(editado);
                         Toast.makeText(this, "Remédio atualizado!", Toast.LENGTH_SHORT).show();
                         finish();
                     });
         }
     }
+    private void agendarNotificacao(Remedio r) {
+        if (r.getHorario() == null || r.getHorario().isEmpty()) return;
+
+        try {
+            String[] partes = r.getHorario().split(":");
+            int hora = Integer.parseInt(partes[0]);
+            int minuto = Integer.parseInt(partes[1]);
+
+            java.util.Calendar c = java.util.Calendar.getInstance();
+            c.set(java.util.Calendar.HOUR_OF_DAY, hora);
+            c.set(java.util.Calendar.MINUTE, minuto);
+            c.set(java.util.Calendar.SECOND, 0);
+
+            if (c.getTimeInMillis() < System.currentTimeMillis()) {
+                c.add(java.util.Calendar.DAY_OF_YEAR, 1);
+            }
+
+            android.content.Intent intent = new android.content.Intent(this, AlarmReceiver.class);
+            intent.putExtra("nome", r.getNome());
+            intent.putExtra("descricao", r.getDescricao());
+            int pendingIntentId = r.getId() != null ? r.getId().hashCode() : (int) System.currentTimeMillis();
+
+            android.app.PendingIntent pendingIntent = android.app.PendingIntent.getBroadcast(
+                    this,
+                    pendingIntentId,
+                    intent,
+                    android.app.PendingIntent.FLAG_UPDATE_CURRENT | android.app.PendingIntent.FLAG_IMMUTABLE
+            );
+
+            android.app.AlarmManager alarmManager = (android.app.AlarmManager) getSystemService(ALARM_SERVICE);
+
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                if (alarmManager.canScheduleExactAlarms()) {
+                    alarmManager.setExactAndAllowWhileIdle(android.app.AlarmManager.RTC_WAKEUP, c.getTimeInMillis(), pendingIntent);
+                } else {
+                    android.util.Log.e("ALARM", "Permissão de alarme exato não concedida");
+                }
+            } else {
+                alarmManager.setExactAndAllowWhileIdle(android.app.AlarmManager.RTC_WAKEUP, c.getTimeInMillis(), pendingIntent);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Erro ao agendar: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
 }
