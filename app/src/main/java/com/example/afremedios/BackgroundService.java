@@ -1,7 +1,6 @@
 package com.example.afremedios;
 
 import static android.app.PendingIntent.FLAG_IMMUTABLE;
-import static android.app.PendingIntent.FLAG_MUTABLE;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -36,7 +35,7 @@ public class BackgroundService extends Service {
         Notification notification = new NotificationCompat.Builder(this, "default")
                 .setContentTitle("Hora do remédio: " + nome)
                 .setContentText(descricao)
-                .setSmallIcon(R.drawable.person_pin_circle_24px)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
                 .build();

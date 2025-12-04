@@ -108,31 +108,13 @@ public class CadastroActivity extends AppCompatActivity {
                 c.add(Calendar.DAY_OF_MONTH, 1);
             }
 
-            Intent intent = new Intent(this, AlarmReceiver.class);
+            Intent intent = new Intent(this, BackgroundService.class);
             intent.putExtra("nome", r.getNome());
             intent.putExtra("descricao", r.getDescricao());
             intent.putExtra("id", r.getId());
 
-            int pendingIntentId = r.getId() != null ? r.getId().hashCode() : (int) System.currentTimeMillis();
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                    this,
-                    pendingIntentId,
-                    intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-            );
+            startService(intent);
 
-            AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-            try {
-
-                alarmManager.setExactAndAllowWhileIdle(
-                        AlarmManager.RTC_WAKEUP,
-                        c.getTimeInMillis(),
-                        pendingIntent
-                );
-            } catch (SecurityException e) {
-                e.printStackTrace();
-                Toast.makeText(this, "Não é possível agendar alarmes exatos neste dispositivo.", Toast.LENGTH_SHORT).show();
-            }
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(this, "Erro ao agendar: " + e.getMessage(), Toast.LENGTH_SHORT).show();

@@ -25,10 +25,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.afremedios.adapter.RemedioAdapter;
 import com.example.afremedios.model.Remedio;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -149,28 +147,11 @@ public class MainActivity extends AppCompatActivity {
             c.add(Calendar.DAY_OF_MONTH, 1);
         }
 
-        Intent intent = new Intent(this, AlarmReceiver.class);
+        Intent intent = new Intent(this, BackgroundService.class);
         intent.putExtra("nome", r.getNome());
         intent.putExtra("descricao", r.getDescricao());
         intent.putExtra("id", r.getId());
 
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                this,
-                r.getId().hashCode(),
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-        );
-
-        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        try {
-            alarmManager.setExactAndAllowWhileIdle(
-                    AlarmManager.RTC_WAKEUP,
-                    c.getTimeInMillis(),
-                    pendingIntent
-            );
-        } catch (SecurityException e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Não é possível agendar alarmes exatos no dispositivo.", Toast.LENGTH_SHORT).show();
-        }
+        startService(intent);
     }
 }
