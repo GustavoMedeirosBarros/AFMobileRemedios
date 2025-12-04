@@ -31,7 +31,7 @@ public class CadastroActivity extends AppCompatActivity {
         edtNome = findViewById(R.id.editTextNomeMedicamento);
         edtDescricao = findViewById(R.id.editTextDescricaoMedicamento);
         edtHorario = findViewById(R.id.editTextHorarioMedicamento);
-        findViewById(R.id.btnSalvar).setOnClickListener(v -> salvarLivro());
+        findViewById(R.id.btnSalvar).setOnClickListener(v -> salvarRemedio());
 
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setNavigationOnClickListener(v -> finish());
@@ -52,7 +52,7 @@ public class CadastroActivity extends AppCompatActivity {
         edtHorario.setText(getIntent().getStringExtra("horario"));
     }
 
-    private void salvarLivro() {
+    private void salvarRemedio() {
         String nome = edtNome.getText().toString();
         String descricao = edtDescricao.getText().toString();
         String horario = edtHorario.getText().toString();
@@ -72,7 +72,6 @@ public class CadastroActivity extends AppCompatActivity {
                         Toast.makeText(this, "Remédio adicionado!", Toast.LENGTH_SHORT).show();
                         finish();
                     });
-
         } else {
             Remedio editado = new Remedio(
                     idEditando,
