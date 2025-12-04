@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">AF Remédios</string>
+
+    <string name="titulo_cadastro">Cadastro de Remédios</string>
+    <string name="titulo_editar">Editar Remédio</string>
+    <string name="titulo_adicionar">Adicionar Remédio</string>
+    <string name="nome_medicamento">Nome do Medicamento</string>
+    <string name="hint_nome">Ex: Paracetamol</string>
+    <string name="descricao_medicamento">Descrição / Dosagem</string>
+    <string name="hint_descricao">Ex: 500mg, tomar após refeição</string>
+    <string name="horario_medicamento">Horário de Consumo</string>
+    <string name="hint_horario">Ex: 08:00</string>
+    <string name="btn_salvar_remedio">Salvar Remédio</string>
+
+    <string name="lista_remedios">Lista de Remédios Cadastrados</string>
+    <string name="btn_salvar_alteracoes">Salvar Alterações</string>
+</resources>
